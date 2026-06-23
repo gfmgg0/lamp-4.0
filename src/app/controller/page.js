@@ -135,8 +135,8 @@ export default function ControllerPage() {
              if (res.ok) {
                const data = await res.json();
                setLastUser(data.user || '');
-               if (turnOn && data.createdAt) {
-                 const start = new Date(data.createdAt).getTime();
+               if (turnOn) {
+                 const start = (data.state === 1 && data.createdAt) ? new Date(data.createdAt).getTime() : Date.now();
                  setSessionStartTime(start);
                  if (user && data.user === user.username) {
                    setMySessionStartTime(start);

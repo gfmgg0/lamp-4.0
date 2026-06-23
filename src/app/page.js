@@ -69,8 +69,9 @@ export default function ViewerPage() {
              if (res.ok) {
                const data = await res.json();
                setLastUser(data.user || 'Desconhecido');
-               if (turnOn && data.createdAt) {
-                 setSessionStartTime(new Date(data.createdAt).getTime());
+               if (turnOn) {
+                 const start = (data.state === 1 && data.createdAt) ? new Date(data.createdAt).getTime() : Date.now();
+                 setSessionStartTime(start);
                } else if (!turnOn) {
                  setSessionStartTime(null);
                  setTotalOnTime(0);
@@ -124,9 +125,7 @@ export default function ViewerPage() {
       <div className="glass-panel text-center" style={{ minWidth: '400px' }}>
         
         <div className="lamp-container mb-4">
-          <div className={`lamp-bulb ${isOn ? 'on' : ''}`}>
-            <div className={`lamp-glow-bg ${isOn ? 'on' : ''}`}></div>
-          </div>
+          <div className={`lamp-bulb ${isOn ? 'on' : ''}`}></div>
         </div>
         
         <h2 className="mb-2" style={{ fontSize: '1.5rem' }}>
