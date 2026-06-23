@@ -17,8 +17,6 @@ export default function ControllerPage() {
   const [isOn, setIsOn] = useState(false);
   const [totalOnTime, setTotalOnTime] = useState(0); // in seconds
   const [myOnTime, setMyOnTime] = useState(0); // time the light is ON and I was the one who turned it ON
-  const [sessionStartTime, setSessionStartTime] = useState(null); // when it turned ON
-  const [mySessionStartTime, setMySessionStartTime] = useState(null); // when I turned it ON
   const [lastUser, setLastUser] = useState('');
   
   const mqttClientRef = useRef(null);
@@ -83,18 +81,14 @@ export default function ControllerPage() {
             setIsOn(data.state === 1);
             setLastUser(data.user || '');
             
-            if (data.state === 1 && data.createdAt) {
-              const start = new Date(data.createdAt).getTime();
-              setSessionStartTime(start);
-              
+            if (data.state === 1) {
+              setTotalOnTime(data.elapsedSeconds || 0);
               if (user && data.user === user.username) {
-                setMySessionStartTime(start);
+                setMyOnTime(data.elapsedSeconds || 0);
               } else {
-                setMySessionStartTime(null);
+                setMyOnTime(0);
               }
             } else {
-              setSessionStartTime(null);
-              setMySessionStartTime(null);
               setTotalOnTime(0);
               setMyOnTime(0);
             }
@@ -136,16 +130,13 @@ export default function ControllerPage() {
                const data = await res.json();
                setLastUser(data.user || '');
                if (turnOn) {
-                 const start = (data.state === 1 && data.createdAt) ? new Date(data.createdAt).getTime() : Date.now();
-                 setSessionStartTime(start);
+                 setTotalOnTime(data.elapsedSeconds || 0);
                  if (user && data.user === user.username) {
-                   setMySessionStartTime(start);
+                   setMyOnTime(data.elapsedSeconds || 0);
                  } else {
-                   setMySessionStartTime(null);
+                   setMyOnTime(0);
                  }
                } else if (!turnOn) {
-                 setSessionStartTime(null);
-                 setMySessionStartTime(null);
                  setTotalOnTime(0);
                  setMyOnTime(0);
                }
@@ -168,16 +159,9 @@ export default function ControllerPage() {
     
     if (isOn) {
       interval = setInterval(() => {
-        const now = Date.now();
-        if (sessionStartTime) {
-          const diffInSeconds = Math.floor((now - sessionStartTime) / 1000);
-          setTotalOnTime(diffInSeconds > 0 ? diffInSeconds : 0);
-        }
-        if (mySessionStartTime) {
-          const myDiffInSeconds = Math.floor((now - mySessionStartTime) / 1000);
-          setMyOnTime(myDiffInSeconds > 0 ? myDiffInSeconds : 0);
-        } else {
-          setMyOnTime(0);
+        setTotalOnTime(prev => prev + 1);
+        if (user && lastUser === user.username) {
+          setMyOnTime(prev => prev + 1);
         }
       }, 1000);
     } else {
@@ -188,7 +172,7 @@ export default function ControllerPage() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isOn, sessionStartTime, mySessionStartTime]);
+  }, [isOn, lastUser, user]);
 
   const toggleSwitch = async () => {
     const newState = !isOn;

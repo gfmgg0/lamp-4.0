@@ -13,11 +13,17 @@ export async function GET(req) {
       return NextResponse.json({ state: 0, user: 'Ninguém', createdAt: null });
     }
 
+    const now = new Date();
+    const elapsedSeconds = lastLog.state === 1 && lastLog.createdAt 
+      ? Math.max(0, Math.floor((now.getTime() - lastLog.createdAt.getTime()) / 1000))
+      : 0;
+
     return NextResponse.json({
       state: lastLog.state,
       user: lastLog.user.username,
       createdAt: lastLog.createdAt,
       userId: lastLog.userId,
+      elapsedSeconds
     });
   } catch (error) {
     return NextResponse.json({ error: 'Erro no servidor' }, { status: 500 });

@@ -7,7 +7,6 @@ export default function ViewerPage() {
   const [isOn, setIsOn] = useState(false);
   const [lastUser, setLastUser] = useState('Ninguém');
   const [totalOnTime, setTotalOnTime] = useState(0); // in seconds
-  const [sessionStartTime, setSessionStartTime] = useState(null); // when it turned ON
   
   const mqttClientRef = useRef(null);
   
@@ -23,10 +22,9 @@ export default function ViewerPage() {
           if (data) {
             setIsOn(data.state === 1);
             setLastUser(data.user || 'Desconhecido');
-            if (data.state === 1 && data.createdAt) {
-              setSessionStartTime(new Date(data.createdAt).getTime());
+            if (data.state === 1) {
+              setTotalOnTime(data.elapsedSeconds || 0);
             } else {
-              setSessionStartTime(null);
               setTotalOnTime(0);
             }
           }
@@ -70,10 +68,8 @@ export default function ViewerPage() {
                const data = await res.json();
                setLastUser(data.user || 'Desconhecido');
                if (turnOn) {
-                 const start = (data.state === 1 && data.createdAt) ? new Date(data.createdAt).getTime() : Date.now();
-                 setSessionStartTime(start);
+                 setTotalOnTime(data.elapsedSeconds || 0);
                } else if (!turnOn) {
-                 setSessionStartTime(null);
                  setTotalOnTime(0);
                }
              }
@@ -95,11 +91,9 @@ export default function ViewerPage() {
   useEffect(() => {
     let interval = null;
     
-    if (isOn && sessionStartTime) {
+    if (isOn) {
       interval = setInterval(() => {
-        const now = Date.now();
-        const diffInSeconds = Math.floor((now - sessionStartTime) / 1000);
-        setTotalOnTime(diffInSeconds > 0 ? diffInSeconds : 0);
+        setTotalOnTime(prev => prev + 1);
       }, 1000);
     } else {
       setTotalOnTime(0);
@@ -108,7 +102,7 @@ export default function ViewerPage() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isOn, sessionStartTime]);
+  }, [isOn]);
 
   const formatTime = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600);
