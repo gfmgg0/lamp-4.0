@@ -1,0 +1,24 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  logs      Log[]
+  createdAt DateTime @default(now())
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  state     Int      // 0 = off, 1 = on
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}

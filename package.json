@@ -1,0 +1,26 @@
+{
+  "name": "lamp-4.0",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jose": "^5.2.2",
+    "mqtt": "^5.3.5",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "latest",
+    "prisma": "^5.10.2"
+  }
+}
