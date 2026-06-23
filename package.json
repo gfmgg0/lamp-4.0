@@ -19,7 +19,7 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "eslint": "^8",
+    "eslint": "^9",
     "eslint-config-next": "latest",
     "prisma": "^5.10.2"
   }
