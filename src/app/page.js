@@ -124,8 +124,9 @@ export default function ViewerPage() {
       <div className="glass-panel text-center" style={{ minWidth: '400px' }}>
         
         <div className="lamp-container mb-4">
-          <div className={`lamp-glow-bg ${isOn ? 'on' : ''}`}></div>
-          <div className={`lamp-bulb ${isOn ? 'on' : ''}`}></div>
+          <div className={`lamp-bulb ${isOn ? 'on' : ''}`}>
+            <div className={`lamp-glow-bg ${isOn ? 'on' : ''}`}></div>
+          </div>
         </div>
         
         <h2 className="mb-2" style={{ fontSize: '1.5rem' }}>
